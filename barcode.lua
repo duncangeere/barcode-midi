@@ -210,6 +210,67 @@ function init()
     voice[i].rate.calc = voice[i].rate.set
   end
 
+  -- Duncan's edits starting here
+  for i = 1, 6 do
+    -- Add voice separator name
+    params:add_separator("voice " .. i)
+
+    -- Add level control
+    params:add {
+      type = "control",
+      id = "v" .. i .. "_level", name = "level",
+      -- controlspec.new(min, max, warp, step, default, units, quantum, wrap)
+      controlspec = controlspec.new(-1, 1, 'lin', 0.01, 0, "", 0.005, false),
+      action = function(x)
+        voice[i].level.adj = params:get("v" .. i .. "_level")
+      end
+    }
+
+    -- Add pan control
+    params:add {
+      type = "control",
+      id = "v" .. i .. "_pan", name = "pan",
+      -- controlspec.new(min, max, warp, step, default, units, quantum, wrap)
+      controlspec = controlspec.new(-1, 1, 'lin', 0.01, 0, "", 0.005, false),
+      action = function(x)
+        voice[i].level.adj = params:get("v" .. i .. "_pan")
+      end
+    }
+
+    -- Add rate control
+    params:add {
+      type = "control",
+      id = "v" .. i .. "_rate", name = "rate",
+      -- controlspec.new(min, max, warp, step, default, units, quantum, wrap)
+      controlspec = controlspec.new(-1, 1, 'lin', 0.01, 0, "", 0.005, false),
+      action = function(x)
+        voice[i].level.adj = params:get("v" .. i .. "_rate")
+      end
+    }
+
+    -- Add direction control
+    params:add {
+      type = "option",
+      id = "v" .. i .. "_direction",
+      name = "direction",
+      options = { "normal", "reverse" },
+      default = 1,
+      action = function()
+        -- Flipping from forward to reverse
+        if voice[i].rate >= 0 then
+          if params:get("v" .. i .. "_direction") == "reverse" then
+            voice[i].rate = voice[i].rate * -1
+          end
+        end
+        -- Flipping from reverse to forward
+        if voice[i].rate < 0 then
+          if params:get("v" .. i .. "_direction") == "normal" then
+            voice[i].rate = voice[i].rate * -1
+          end
+        end
+      end
+    }
+  end
 
   -- send audio input to softcut input
   audio.level_adc_cut(1)
